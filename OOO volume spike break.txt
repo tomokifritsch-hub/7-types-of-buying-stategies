@@ -1,0 +1,18 @@
+//@version=5
+strategy("6 Volume Spike Break", overlay=true, default_qty_type=strategy.percent_of_equity, default_qty_value=100, commission_type=strategy.commission.percent, commission_value=0.1)
+
+len     = input.int(20, "Donchian len", minval=2)
+volLen  = input.int(20, "Volume avg len", minval=2)
+volMult = input.float(1.5, "Volume mult", step=0.1)
+tp = input.float(1.0, "TP ($)", step=0.1)
+sl = input.float(0.5, "SL ($)", step=0.1)
+
+upper = ta.highest(high, len)[1]
+volOk = volume > ta.sma(volume, volLen) * volMult
+plot(upper, "Upper", color=color.orange)
+
+if ta.crossover(close, upper) and volOk and strategy.position_size == 0
+    strategy.entry("Long", strategy.long)
+
+if strategy.position_size > 0
+    strategy.exit("Exit", "Long", limit=strategy.position_avg_price + tp, stop=strategy.position_avg_price - sl)

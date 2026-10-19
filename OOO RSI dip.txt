@@ -1,0 +1,19 @@
+//@version=5
+strategy("5 RSI Dip", overlay=true, default_qty_type=strategy.percent_of_equity, default_qty_value=100, commission_type=strategy.commission.percent, commission_value=0.1)
+
+trendLen = input.int(50, "Trend EMA", minval=2)
+rsiLen   = input.int(14, "RSI len", minval=2)
+rsiLevel = input.float(40, "RSI level")
+tp = input.float(1.0, "TP ($)", step=0.1)
+sl = input.float(0.5, "SL ($)", step=0.1)
+
+trend = ta.ema(close, trendLen)
+rsi = ta.rsi(close, rsiLen)
+plot(trend, "Trend EMA", color=color.orange)
+
+// RSIがレベルを下から上抜け = 一度押してから戻った
+if close > trend and ta.crossover(rsi, rsiLevel) and strategy.position_size == 0
+    strategy.entry("Long", strategy.long)
+
+if strategy.position_size > 0
+    strategy.exit("Exit", "Long", limit=strategy.position_avg_price + tp, stop=strategy.position_avg_price - sl)

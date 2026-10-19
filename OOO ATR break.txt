@@ -1,0 +1,17 @@
+//@version=5
+strategy("4 ATR Break", overlay=true, default_qty_type=strategy.percent_of_equity, default_qty_value=100, commission_type=strategy.commission.percent, commission_value=0.1)
+
+atrLen = input.int(14, "ATR len", minval=1)
+mult   = input.float(1.5, "ATR mult", step=0.1)
+tp = input.float(1.0, "TP ($)", step=0.1)
+sl = input.float(0.5, "SL ($)", step=0.1)
+
+atr = ta.atr(atrLen)
+level = close + mult * atr
+
+
+if strategy.position_size == 0
+    strategy.entry("Long", strategy.long, stop=level)
+
+if strategy.position_size > 0
+    strategy.exit("Exit", "Long", limit=strategy.position_avg_price + tp, stop=strategy.position_avg_price - sl)

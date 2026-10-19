@@ -1,0 +1,18 @@
+//@version=5
+strategy("0 EMA Cross (baseline)", overlay=true, default_qty_type=strategy.percent_of_equity, default_qty_value=100, commission_type=strategy.commission.percent, commission_value=0.1)
+
+fastLen = input.int(5, "EMA fast", minval=1)
+slowLen = input.int(13, "EMA slow", minval=2)
+tp = input.float(1.0, "TP ($)", step=0.1)
+sl = input.float(0.5, "SL ($)", step=0.1)
+
+emaF = ta.ema(close, fastLen)
+emaS = ta.ema(close, slowLen)
+plot(emaF, "Fast", color=color.aqua)
+plot(emaS, "Slow", color=color.orange)
+
+if ta.crossover(emaF, emaS) and strategy.position_size == 0
+    strategy.entry("Long", strategy.long)
+
+if strategy.position_size > 0
+    strategy.exit("Exit", "Long", limit=strategy.position_avg_price + tp, stop=strategy.position_avg_price - sl)
